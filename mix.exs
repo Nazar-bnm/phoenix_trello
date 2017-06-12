@@ -27,7 +27,6 @@ defmodule PhoenixTrello.Mixfile do
       :phoenix_ecto,
       :postgrex,
       :comeonin,
-      :ex_machina
     ]]
   end
 
@@ -46,8 +45,8 @@ defmodule PhoenixTrello.Mixfile do
      {:phoenix_html, "~> 2.6"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.11"},
-     {:comeonin, "~> 2.0"},
-     {:guardian, "~> 0.9.0"},
+     {:comeonin, "~> 2.5.3"},
+     {:guardian, "~> 0.13.0"},
      {:cowboy, "~> 1.0"}]
 
 

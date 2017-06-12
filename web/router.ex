@@ -10,6 +10,12 @@ defmodule PhoenixTrello.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :api do
+    plug :accepts, ["json"]
+    plug Guardian.Plug.VerifyHeader
+    plug Guardian.Plug.LoadResource
+  end
+
   scope "/api", PhoenixTrello do
     pipe_through :api
 
@@ -21,6 +27,6 @@ defmodule PhoenixTrello.Router do
   scope "/", PhoenixTrello do
     pipe_through :browser # Use the default browser stack
 
-    get "*path", PageController, :index
+    get "/*path", PageController, :index
   end
 end
