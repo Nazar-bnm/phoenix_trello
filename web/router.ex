@@ -7,6 +7,15 @@ defmodule PhoenixTrello.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :accepts, ["json"]
+  end
+
+  scope "/api", PhoenixTrello do
+    pipe_through :api
+
+    scope "/v1" do
+      post "/registrations", RegistrationController, :create
+    end
   end
 
   scope "/", PhoenixTrello do
