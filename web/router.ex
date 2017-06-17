@@ -10,6 +10,9 @@ defmodule PhoenixTrello.Router do
     plug :accepts, ["json"]
   end
 
+  # VerifyHeader: this plug just looks for the token in the Authorization header.
+  # VerifyHeader: this plug just looks for the token in the Authorization header.
+
   pipeline :api do
     plug :accepts, ["json"]
     plug Guardian.Plug.VerifyHeader
@@ -23,6 +26,9 @@ defmodule PhoenixTrello.Router do
       post "/registrations", RegistrationController, :create
 
       get "/current_user", CurrentUserController, :show
+
+      post "/sessions", SessionController, :create
+      delete "/sessions", SessionController, :delete
     end
   end
 

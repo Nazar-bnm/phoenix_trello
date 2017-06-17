@@ -62,3 +62,8 @@ export function httpPost(url, data) {
   .then(checkStatus)
   .then(parseJSON);
 }
+
+// set tab title in browser
+export function setDocumentTitle(title) {
+  document.title = `${title} | Phoenix Trello`;
+}
