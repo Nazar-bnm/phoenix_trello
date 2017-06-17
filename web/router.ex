@@ -21,6 +21,8 @@ defmodule PhoenixTrello.Router do
 
     scope "/v1" do
       post "/registrations", RegistrationController, :create
+
+      get "/current_user", CurrentUserController, :show
     end
   end
 
