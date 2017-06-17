@@ -73,7 +73,9 @@
 
 	var _reactRouter = __webpack_require__(164);
 
-	var _store = __webpack_require__(227);
+	var _reactRouterRedux = __webpack_require__(227);
+
+	var _store = __webpack_require__(232);
 
 	var _store2 = _interopRequireDefault(_store);
 
@@ -84,9 +86,10 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var store = (0, _store2.default)(_reactRouter.browserHistory);
+	var history = (0, _reactRouterRedux.syncHistoryWithStore)(_reactRouter.browserHistory, store);
 
 	var target = document.getElementById('main_container');
-	var node = _react2.default.createElement(_root2.default, { routerHistory: _reactRouter.browserHistory, store: store });
+	var node = _react2.default.createElement(_root2.default, { routerHistory: history, store: store });
 
 	_reactDom2.default.render(node, target);
 
@@ -25449,19 +25452,386 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.routerMiddleware = exports.routerActions = exports.goForward = exports.goBack = exports.go = exports.replace = exports.push = exports.CALL_HISTORY_METHOD = exports.routerReducer = exports.LOCATION_CHANGE = exports.syncHistoryWithStore = undefined;
+
+	var _reducer = __webpack_require__(228);
+
+	Object.defineProperty(exports, 'LOCATION_CHANGE', {
+	  enumerable: true,
+	  get: function get() {
+	    return _reducer.LOCATION_CHANGE;
+	  }
+	});
+	Object.defineProperty(exports, 'routerReducer', {
+	  enumerable: true,
+	  get: function get() {
+	    return _reducer.routerReducer;
+	  }
+	});
+
+	var _actions = __webpack_require__(229);
+
+	Object.defineProperty(exports, 'CALL_HISTORY_METHOD', {
+	  enumerable: true,
+	  get: function get() {
+	    return _actions.CALL_HISTORY_METHOD;
+	  }
+	});
+	Object.defineProperty(exports, 'push', {
+	  enumerable: true,
+	  get: function get() {
+	    return _actions.push;
+	  }
+	});
+	Object.defineProperty(exports, 'replace', {
+	  enumerable: true,
+	  get: function get() {
+	    return _actions.replace;
+	  }
+	});
+	Object.defineProperty(exports, 'go', {
+	  enumerable: true,
+	  get: function get() {
+	    return _actions.go;
+	  }
+	});
+	Object.defineProperty(exports, 'goBack', {
+	  enumerable: true,
+	  get: function get() {
+	    return _actions.goBack;
+	  }
+	});
+	Object.defineProperty(exports, 'goForward', {
+	  enumerable: true,
+	  get: function get() {
+	    return _actions.goForward;
+	  }
+	});
+	Object.defineProperty(exports, 'routerActions', {
+	  enumerable: true,
+	  get: function get() {
+	    return _actions.routerActions;
+	  }
+	});
+
+	var _sync = __webpack_require__(230);
+
+	var _sync2 = _interopRequireDefault(_sync);
+
+	var _middleware = __webpack_require__(231);
+
+	var _middleware2 = _interopRequireDefault(_middleware);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	exports.syncHistoryWithStore = _sync2['default'];
+	exports.routerMiddleware = _middleware2['default'];
+
+/***/ }),
+/* 228 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports.routerReducer = routerReducer;
+	/**
+	 * This action type will be dispatched when your history
+	 * receives a location change.
+	 */
+	var LOCATION_CHANGE = exports.LOCATION_CHANGE = '@@router/LOCATION_CHANGE';
+
+	var initialState = {
+	  locationBeforeTransitions: null
+	};
+
+	/**
+	 * This reducer will update the state with the most recent location history
+	 * has transitioned to. This may not be in sync with the router, particularly
+	 * if you have asynchronously-loaded routes, so reading from and relying on
+	 * this state is discouraged.
+	 */
+	function routerReducer() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+
+	  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+	      type = _ref.type,
+	      payload = _ref.payload;
+
+	  if (type === LOCATION_CHANGE) {
+	    return _extends({}, state, { locationBeforeTransitions: payload });
+	  }
+
+	  return state;
+	}
+
+/***/ }),
+/* 229 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	/**
+	 * This action type will be dispatched by the history actions below.
+	 * If you're writing a middleware to watch for navigation events, be sure to
+	 * look for actions of this type.
+	 */
+	var CALL_HISTORY_METHOD = exports.CALL_HISTORY_METHOD = '@@router/CALL_HISTORY_METHOD';
+
+	function updateLocation(method) {
+	  return function () {
+	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	      args[_key] = arguments[_key];
+	    }
+
+	    return {
+	      type: CALL_HISTORY_METHOD,
+	      payload: { method: method, args: args }
+	    };
+	  };
+	}
+
+	/**
+	 * These actions correspond to the history API.
+	 * The associated routerMiddleware will capture these events before they get to
+	 * your reducer and reissue them as the matching function on your history.
+	 */
+	var push = exports.push = updateLocation('push');
+	var replace = exports.replace = updateLocation('replace');
+	var go = exports.go = updateLocation('go');
+	var goBack = exports.goBack = updateLocation('goBack');
+	var goForward = exports.goForward = updateLocation('goForward');
+
+	var routerActions = exports.routerActions = { push: push, replace: replace, go: go, goBack: goBack, goForward: goForward };
+
+/***/ }),
+/* 230 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports['default'] = syncHistoryWithStore;
+
+	var _reducer = __webpack_require__(228);
+
+	var defaultSelectLocationState = function defaultSelectLocationState(state) {
+	  return state.routing;
+	};
+
+	/**
+	 * This function synchronizes your history state with the Redux store.
+	 * Location changes flow from history to the store. An enhanced history is
+	 * returned with a listen method that responds to store updates for location.
+	 *
+	 * When this history is provided to the router, this means the location data
+	 * will flow like this:
+	 * history.push -> store.dispatch -> enhancedHistory.listen -> router
+	 * This ensures that when the store state changes due to a replay or other
+	 * event, the router will be updated appropriately and can transition to the
+	 * correct router state.
+	 */
+	function syncHistoryWithStore(history, store) {
+	  var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+	      _ref$selectLocationSt = _ref.selectLocationState,
+	      selectLocationState = _ref$selectLocationSt === undefined ? defaultSelectLocationState : _ref$selectLocationSt,
+	      _ref$adjustUrlOnRepla = _ref.adjustUrlOnReplay,
+	      adjustUrlOnReplay = _ref$adjustUrlOnRepla === undefined ? true : _ref$adjustUrlOnRepla;
+
+	  // Ensure that the reducer is mounted on the store and functioning properly.
+	  if (typeof selectLocationState(store.getState()) === 'undefined') {
+	    throw new Error('Expected the routing state to be available either as `state.routing` ' + 'or as the custom expression you can specify as `selectLocationState` ' + 'in the `syncHistoryWithStore()` options. ' + 'Ensure you have added the `routerReducer` to your store\'s ' + 'reducers via `combineReducers` or whatever method you use to isolate ' + 'your reducers.');
+	  }
+
+	  var initialLocation = void 0;
+	  var isTimeTraveling = void 0;
+	  var unsubscribeFromStore = void 0;
+	  var unsubscribeFromHistory = void 0;
+	  var currentLocation = void 0;
+
+	  // What does the store say about current location?
+	  var getLocationInStore = function getLocationInStore(useInitialIfEmpty) {
+	    var locationState = selectLocationState(store.getState());
+	    return locationState.locationBeforeTransitions || (useInitialIfEmpty ? initialLocation : undefined);
+	  };
+
+	  // Init initialLocation with potential location in store
+	  initialLocation = getLocationInStore();
+
+	  // If the store is replayed, update the URL in the browser to match.
+	  if (adjustUrlOnReplay) {
+	    var handleStoreChange = function handleStoreChange() {
+	      var locationInStore = getLocationInStore(true);
+	      if (currentLocation === locationInStore || initialLocation === locationInStore) {
+	        return;
+	      }
+
+	      // Update address bar to reflect store state
+	      isTimeTraveling = true;
+	      currentLocation = locationInStore;
+	      history.transitionTo(_extends({}, locationInStore, {
+	        action: 'PUSH'
+	      }));
+	      isTimeTraveling = false;
+	    };
+
+	    unsubscribeFromStore = store.subscribe(handleStoreChange);
+	    handleStoreChange();
+	  }
+
+	  // Whenever location changes, dispatch an action to get it in the store
+	  var handleLocationChange = function handleLocationChange(location) {
+	    // ... unless we just caused that location change
+	    if (isTimeTraveling) {
+	      return;
+	    }
+
+	    // Remember where we are
+	    currentLocation = location;
+
+	    // Are we being called for the first time?
+	    if (!initialLocation) {
+	      // Remember as a fallback in case state is reset
+	      initialLocation = location;
+
+	      // Respect persisted location, if any
+	      if (getLocationInStore()) {
+	        return;
+	      }
+	    }
+
+	    // Tell the store to update by dispatching an action
+	    store.dispatch({
+	      type: _reducer.LOCATION_CHANGE,
+	      payload: location
+	    });
+	  };
+	  unsubscribeFromHistory = history.listen(handleLocationChange);
+
+	  // History 3.x doesn't call listen synchronously, so fire the initial location change ourselves
+	  if (history.getCurrentLocation) {
+	    handleLocationChange(history.getCurrentLocation());
+	  }
+
+	  // The enhanced history uses store as source of truth
+	  return _extends({}, history, {
+	    // The listeners are subscribed to the store instead of history
+	    listen: function listen(listener) {
+	      // Copy of last location.
+	      var lastPublishedLocation = getLocationInStore(true);
+
+	      // Keep track of whether we unsubscribed, as Redux store
+	      // only applies changes in subscriptions on next dispatch
+	      var unsubscribed = false;
+	      var unsubscribeFromStore = store.subscribe(function () {
+	        var currentLocation = getLocationInStore(true);
+	        if (currentLocation === lastPublishedLocation) {
+	          return;
+	        }
+	        lastPublishedLocation = currentLocation;
+	        if (!unsubscribed) {
+	          listener(lastPublishedLocation);
+	        }
+	      });
+
+	      // History 2.x listeners expect a synchronous call. Make the first call to the
+	      // listener after subscribing to the store, in case the listener causes a
+	      // location change (e.g. when it redirects)
+	      if (!history.getCurrentLocation) {
+	        listener(lastPublishedLocation);
+	      }
+
+	      // Let user unsubscribe later
+	      return function () {
+	        unsubscribed = true;
+	        unsubscribeFromStore();
+	      };
+	    },
+
+
+	    // It also provides a way to destroy internal listeners
+	    unsubscribe: function unsubscribe() {
+	      if (adjustUrlOnReplay) {
+	        unsubscribeFromStore();
+	      }
+	      unsubscribeFromHistory();
+	    }
+	  });
+	}
+
+/***/ }),
+/* 231 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports['default'] = routerMiddleware;
+
+	var _actions = __webpack_require__(229);
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	/**
+	 * This middleware captures CALL_HISTORY_METHOD actions to redirect to the
+	 * provided history object. This will prevent these actions from reaching your
+	 * reducer or any middleware that comes after this one.
+	 */
+	function routerMiddleware(history) {
+	  return function () {
+	    return function (next) {
+	      return function (action) {
+	        if (action.type !== _actions.CALL_HISTORY_METHOD) {
+	          return next(action);
+	        }
+
+	        var _action$payload = action.payload,
+	            method = _action$payload.method,
+	            args = _action$payload.args;
+
+	        history[method].apply(history, _toConsumableArray(args));
+	      };
+	    };
+	  };
+	}
+
+/***/ }),
+/* 232 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.default = configureStore;
 
-	var _redux = __webpack_require__(228);
+	var _redux = __webpack_require__(233);
 
-	var _reduxLogger = __webpack_require__(249);
+	var _reactRouterRedux = __webpack_require__(227);
+
+	var _reduxLogger = __webpack_require__(254);
 
 	var _reduxLogger2 = _interopRequireDefault(_reduxLogger);
 
-	var _reduxThunk = __webpack_require__(255);
+	var _reduxThunk = __webpack_require__(260);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
-
-	var _reactRouterRedux = __webpack_require__(256);
 
 	var _reducers = __webpack_require__(261);
 
@@ -25469,8 +25839,6 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	//
-	// import { syncHistory }                  from 'react-router-redux';
 	var loggerMiddleware = (0, _reduxLogger2.default)({
 	  level: 'info',
 	  collapsed: true
@@ -25484,7 +25852,7 @@
 	}
 
 /***/ }),
-/* 228 */
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -25492,27 +25860,27 @@
 	exports.__esModule = true;
 	exports.compose = exports.applyMiddleware = exports.bindActionCreators = exports.combineReducers = exports.createStore = undefined;
 
-	var _createStore = __webpack_require__(229);
+	var _createStore = __webpack_require__(234);
 
 	var _createStore2 = _interopRequireDefault(_createStore);
 
-	var _combineReducers = __webpack_require__(244);
+	var _combineReducers = __webpack_require__(249);
 
 	var _combineReducers2 = _interopRequireDefault(_combineReducers);
 
-	var _bindActionCreators = __webpack_require__(246);
+	var _bindActionCreators = __webpack_require__(251);
 
 	var _bindActionCreators2 = _interopRequireDefault(_bindActionCreators);
 
-	var _applyMiddleware = __webpack_require__(247);
+	var _applyMiddleware = __webpack_require__(252);
 
 	var _applyMiddleware2 = _interopRequireDefault(_applyMiddleware);
 
-	var _compose = __webpack_require__(248);
+	var _compose = __webpack_require__(253);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
-	var _warning = __webpack_require__(245);
+	var _warning = __webpack_require__(250);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -25536,7 +25904,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
-/* 229 */
+/* 234 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25545,11 +25913,11 @@
 	exports.ActionTypes = undefined;
 	exports['default'] = createStore;
 
-	var _isPlainObject = __webpack_require__(230);
+	var _isPlainObject = __webpack_require__(235);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _symbolObservable = __webpack_require__(240);
+	var _symbolObservable = __webpack_require__(245);
 
 	var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
 
@@ -25802,12 +26170,12 @@
 	}
 
 /***/ }),
-/* 230 */
+/* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var baseGetTag = __webpack_require__(231),
-	    getPrototype = __webpack_require__(237),
-	    isObjectLike = __webpack_require__(239);
+	var baseGetTag = __webpack_require__(236),
+	    getPrototype = __webpack_require__(242),
+	    isObjectLike = __webpack_require__(244);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -25870,12 +26238,12 @@
 
 
 /***/ }),
-/* 231 */
+/* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(232),
-	    getRawTag = __webpack_require__(235),
-	    objectToString = __webpack_require__(236);
+	var Symbol = __webpack_require__(237),
+	    getRawTag = __webpack_require__(240),
+	    objectToString = __webpack_require__(241);
 
 	/** `Object#toString` result references. */
 	var nullTag = '[object Null]',
@@ -25905,10 +26273,10 @@
 
 
 /***/ }),
-/* 232 */
+/* 237 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var root = __webpack_require__(233);
+	var root = __webpack_require__(238);
 
 	/** Built-in value references. */
 	var Symbol = root.Symbol;
@@ -25917,10 +26285,10 @@
 
 
 /***/ }),
-/* 233 */
+/* 238 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var freeGlobal = __webpack_require__(234);
+	var freeGlobal = __webpack_require__(239);
 
 	/** Detect free variable `self`. */
 	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -25932,7 +26300,7 @@
 
 
 /***/ }),
-/* 234 */
+/* 239 */
 /***/ (function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
@@ -25943,10 +26311,10 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ }),
-/* 235 */
+/* 240 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var Symbol = __webpack_require__(232);
+	var Symbol = __webpack_require__(237);
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -25995,7 +26363,7 @@
 
 
 /***/ }),
-/* 236 */
+/* 241 */
 /***/ (function(module, exports) {
 
 	/** Used for built-in method references. */
@@ -26023,10 +26391,10 @@
 
 
 /***/ }),
-/* 237 */
+/* 242 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var overArg = __webpack_require__(238);
+	var overArg = __webpack_require__(243);
 
 	/** Built-in value references. */
 	var getPrototype = overArg(Object.getPrototypeOf, Object);
@@ -26035,7 +26403,7 @@
 
 
 /***/ }),
-/* 238 */
+/* 243 */
 /***/ (function(module, exports) {
 
 	/**
@@ -26056,7 +26424,7 @@
 
 
 /***/ }),
-/* 239 */
+/* 244 */
 /***/ (function(module, exports) {
 
 	/**
@@ -26091,14 +26459,14 @@
 
 
 /***/ }),
-/* 240 */
+/* 245 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(241);
+	module.exports = __webpack_require__(246);
 
 
 /***/ }),
-/* 241 */
+/* 246 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, module) {'use strict';
@@ -26107,7 +26475,7 @@
 	  value: true
 	});
 
-	var _ponyfill = __webpack_require__(243);
+	var _ponyfill = __webpack_require__(248);
 
 	var _ponyfill2 = _interopRequireDefault(_ponyfill);
 
@@ -26130,10 +26498,10 @@
 
 	var result = (0, _ponyfill2['default'])(root);
 	exports['default'] = result;
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(242)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(247)(module)))
 
 /***/ }),
-/* 242 */
+/* 247 */
 /***/ (function(module, exports) {
 
 	module.exports = function(module) {
@@ -26149,7 +26517,7 @@
 
 
 /***/ }),
-/* 243 */
+/* 248 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -26177,7 +26545,7 @@
 	};
 
 /***/ }),
-/* 244 */
+/* 249 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -26185,13 +26553,13 @@
 	exports.__esModule = true;
 	exports['default'] = combineReducers;
 
-	var _createStore = __webpack_require__(229);
+	var _createStore = __webpack_require__(234);
 
-	var _isPlainObject = __webpack_require__(230);
+	var _isPlainObject = __webpack_require__(235);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _warning = __webpack_require__(245);
+	var _warning = __webpack_require__(250);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -26325,7 +26693,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
-/* 245 */
+/* 250 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -26355,7 +26723,7 @@
 	}
 
 /***/ }),
-/* 246 */
+/* 251 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -26411,7 +26779,7 @@
 	}
 
 /***/ }),
-/* 247 */
+/* 252 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26422,7 +26790,7 @@
 
 	exports['default'] = applyMiddleware;
 
-	var _compose = __webpack_require__(248);
+	var _compose = __webpack_require__(253);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
@@ -26474,7 +26842,7 @@
 	}
 
 /***/ }),
-/* 248 */
+/* 253 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -26517,7 +26885,7 @@
 	}
 
 /***/ }),
-/* 249 */
+/* 254 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26529,11 +26897,11 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _core = __webpack_require__(250);
+	var _core = __webpack_require__(255);
 
-	var _helpers = __webpack_require__(251);
+	var _helpers = __webpack_require__(256);
 
-	var _defaults = __webpack_require__(254);
+	var _defaults = __webpack_require__(259);
 
 	var _defaults2 = _interopRequireDefault(_defaults);
 
@@ -26655,7 +27023,7 @@
 
 
 /***/ }),
-/* 250 */
+/* 255 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26668,9 +27036,9 @@
 
 	exports.printBuffer = printBuffer;
 
-	var _helpers = __webpack_require__(251);
+	var _helpers = __webpack_require__(256);
 
-	var _diff = __webpack_require__(252);
+	var _diff = __webpack_require__(257);
 
 	var _diff2 = _interopRequireDefault(_diff);
 
@@ -26801,7 +27169,7 @@
 	}
 
 /***/ }),
-/* 251 */
+/* 256 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -26825,7 +27193,7 @@
 	var timer = exports.timer = typeof performance !== "undefined" && performance !== null && typeof performance.now === "function" ? performance : Date;
 
 /***/ }),
-/* 252 */
+/* 257 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26835,7 +27203,7 @@
 	});
 	exports.default = diffLogger;
 
-	var _deepDiff = __webpack_require__(253);
+	var _deepDiff = __webpack_require__(258);
 
 	var _deepDiff2 = _interopRequireDefault(_deepDiff);
 
@@ -26924,7 +27292,7 @@
 	module.exports = exports['default'];
 
 /***/ }),
-/* 253 */
+/* 258 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global) {/*!
@@ -27353,7 +27721,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ }),
-/* 254 */
+/* 259 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -27404,7 +27772,7 @@
 	module.exports = exports["default"];
 
 /***/ }),
-/* 255 */
+/* 260 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -27423,373 +27791,6 @@
 	module.exports = thunkMiddleware;
 
 /***/ }),
-/* 256 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.routerMiddleware = exports.routerActions = exports.goForward = exports.goBack = exports.go = exports.replace = exports.push = exports.CALL_HISTORY_METHOD = exports.routerReducer = exports.LOCATION_CHANGE = exports.syncHistoryWithStore = undefined;
-
-	var _reducer = __webpack_require__(257);
-
-	Object.defineProperty(exports, 'LOCATION_CHANGE', {
-	  enumerable: true,
-	  get: function get() {
-	    return _reducer.LOCATION_CHANGE;
-	  }
-	});
-	Object.defineProperty(exports, 'routerReducer', {
-	  enumerable: true,
-	  get: function get() {
-	    return _reducer.routerReducer;
-	  }
-	});
-
-	var _actions = __webpack_require__(258);
-
-	Object.defineProperty(exports, 'CALL_HISTORY_METHOD', {
-	  enumerable: true,
-	  get: function get() {
-	    return _actions.CALL_HISTORY_METHOD;
-	  }
-	});
-	Object.defineProperty(exports, 'push', {
-	  enumerable: true,
-	  get: function get() {
-	    return _actions.push;
-	  }
-	});
-	Object.defineProperty(exports, 'replace', {
-	  enumerable: true,
-	  get: function get() {
-	    return _actions.replace;
-	  }
-	});
-	Object.defineProperty(exports, 'go', {
-	  enumerable: true,
-	  get: function get() {
-	    return _actions.go;
-	  }
-	});
-	Object.defineProperty(exports, 'goBack', {
-	  enumerable: true,
-	  get: function get() {
-	    return _actions.goBack;
-	  }
-	});
-	Object.defineProperty(exports, 'goForward', {
-	  enumerable: true,
-	  get: function get() {
-	    return _actions.goForward;
-	  }
-	});
-	Object.defineProperty(exports, 'routerActions', {
-	  enumerable: true,
-	  get: function get() {
-	    return _actions.routerActions;
-	  }
-	});
-
-	var _sync = __webpack_require__(259);
-
-	var _sync2 = _interopRequireDefault(_sync);
-
-	var _middleware = __webpack_require__(260);
-
-	var _middleware2 = _interopRequireDefault(_middleware);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	exports.syncHistoryWithStore = _sync2['default'];
-	exports.routerMiddleware = _middleware2['default'];
-
-/***/ }),
-/* 257 */
-/***/ (function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	exports.routerReducer = routerReducer;
-	/**
-	 * This action type will be dispatched when your history
-	 * receives a location change.
-	 */
-	var LOCATION_CHANGE = exports.LOCATION_CHANGE = '@@router/LOCATION_CHANGE';
-
-	var initialState = {
-	  locationBeforeTransitions: null
-	};
-
-	/**
-	 * This reducer will update the state with the most recent location history
-	 * has transitioned to. This may not be in sync with the router, particularly
-	 * if you have asynchronously-loaded routes, so reading from and relying on
-	 * this state is discouraged.
-	 */
-	function routerReducer() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-
-	  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-	      type = _ref.type,
-	      payload = _ref.payload;
-
-	  if (type === LOCATION_CHANGE) {
-	    return _extends({}, state, { locationBeforeTransitions: payload });
-	  }
-
-	  return state;
-	}
-
-/***/ }),
-/* 258 */
-/***/ (function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	/**
-	 * This action type will be dispatched by the history actions below.
-	 * If you're writing a middleware to watch for navigation events, be sure to
-	 * look for actions of this type.
-	 */
-	var CALL_HISTORY_METHOD = exports.CALL_HISTORY_METHOD = '@@router/CALL_HISTORY_METHOD';
-
-	function updateLocation(method) {
-	  return function () {
-	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	      args[_key] = arguments[_key];
-	    }
-
-	    return {
-	      type: CALL_HISTORY_METHOD,
-	      payload: { method: method, args: args }
-	    };
-	  };
-	}
-
-	/**
-	 * These actions correspond to the history API.
-	 * The associated routerMiddleware will capture these events before they get to
-	 * your reducer and reissue them as the matching function on your history.
-	 */
-	var push = exports.push = updateLocation('push');
-	var replace = exports.replace = updateLocation('replace');
-	var go = exports.go = updateLocation('go');
-	var goBack = exports.goBack = updateLocation('goBack');
-	var goForward = exports.goForward = updateLocation('goForward');
-
-	var routerActions = exports.routerActions = { push: push, replace: replace, go: go, goBack: goBack, goForward: goForward };
-
-/***/ }),
-/* 259 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	exports['default'] = syncHistoryWithStore;
-
-	var _reducer = __webpack_require__(257);
-
-	var defaultSelectLocationState = function defaultSelectLocationState(state) {
-	  return state.routing;
-	};
-
-	/**
-	 * This function synchronizes your history state with the Redux store.
-	 * Location changes flow from history to the store. An enhanced history is
-	 * returned with a listen method that responds to store updates for location.
-	 *
-	 * When this history is provided to the router, this means the location data
-	 * will flow like this:
-	 * history.push -> store.dispatch -> enhancedHistory.listen -> router
-	 * This ensures that when the store state changes due to a replay or other
-	 * event, the router will be updated appropriately and can transition to the
-	 * correct router state.
-	 */
-	function syncHistoryWithStore(history, store) {
-	  var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-	      _ref$selectLocationSt = _ref.selectLocationState,
-	      selectLocationState = _ref$selectLocationSt === undefined ? defaultSelectLocationState : _ref$selectLocationSt,
-	      _ref$adjustUrlOnRepla = _ref.adjustUrlOnReplay,
-	      adjustUrlOnReplay = _ref$adjustUrlOnRepla === undefined ? true : _ref$adjustUrlOnRepla;
-
-	  // Ensure that the reducer is mounted on the store and functioning properly.
-	  if (typeof selectLocationState(store.getState()) === 'undefined') {
-	    throw new Error('Expected the routing state to be available either as `state.routing` ' + 'or as the custom expression you can specify as `selectLocationState` ' + 'in the `syncHistoryWithStore()` options. ' + 'Ensure you have added the `routerReducer` to your store\'s ' + 'reducers via `combineReducers` or whatever method you use to isolate ' + 'your reducers.');
-	  }
-
-	  var initialLocation = void 0;
-	  var isTimeTraveling = void 0;
-	  var unsubscribeFromStore = void 0;
-	  var unsubscribeFromHistory = void 0;
-	  var currentLocation = void 0;
-
-	  // What does the store say about current location?
-	  var getLocationInStore = function getLocationInStore(useInitialIfEmpty) {
-	    var locationState = selectLocationState(store.getState());
-	    return locationState.locationBeforeTransitions || (useInitialIfEmpty ? initialLocation : undefined);
-	  };
-
-	  // Init initialLocation with potential location in store
-	  initialLocation = getLocationInStore();
-
-	  // If the store is replayed, update the URL in the browser to match.
-	  if (adjustUrlOnReplay) {
-	    var handleStoreChange = function handleStoreChange() {
-	      var locationInStore = getLocationInStore(true);
-	      if (currentLocation === locationInStore || initialLocation === locationInStore) {
-	        return;
-	      }
-
-	      // Update address bar to reflect store state
-	      isTimeTraveling = true;
-	      currentLocation = locationInStore;
-	      history.transitionTo(_extends({}, locationInStore, {
-	        action: 'PUSH'
-	      }));
-	      isTimeTraveling = false;
-	    };
-
-	    unsubscribeFromStore = store.subscribe(handleStoreChange);
-	    handleStoreChange();
-	  }
-
-	  // Whenever location changes, dispatch an action to get it in the store
-	  var handleLocationChange = function handleLocationChange(location) {
-	    // ... unless we just caused that location change
-	    if (isTimeTraveling) {
-	      return;
-	    }
-
-	    // Remember where we are
-	    currentLocation = location;
-
-	    // Are we being called for the first time?
-	    if (!initialLocation) {
-	      // Remember as a fallback in case state is reset
-	      initialLocation = location;
-
-	      // Respect persisted location, if any
-	      if (getLocationInStore()) {
-	        return;
-	      }
-	    }
-
-	    // Tell the store to update by dispatching an action
-	    store.dispatch({
-	      type: _reducer.LOCATION_CHANGE,
-	      payload: location
-	    });
-	  };
-	  unsubscribeFromHistory = history.listen(handleLocationChange);
-
-	  // History 3.x doesn't call listen synchronously, so fire the initial location change ourselves
-	  if (history.getCurrentLocation) {
-	    handleLocationChange(history.getCurrentLocation());
-	  }
-
-	  // The enhanced history uses store as source of truth
-	  return _extends({}, history, {
-	    // The listeners are subscribed to the store instead of history
-	    listen: function listen(listener) {
-	      // Copy of last location.
-	      var lastPublishedLocation = getLocationInStore(true);
-
-	      // Keep track of whether we unsubscribed, as Redux store
-	      // only applies changes in subscriptions on next dispatch
-	      var unsubscribed = false;
-	      var unsubscribeFromStore = store.subscribe(function () {
-	        var currentLocation = getLocationInStore(true);
-	        if (currentLocation === lastPublishedLocation) {
-	          return;
-	        }
-	        lastPublishedLocation = currentLocation;
-	        if (!unsubscribed) {
-	          listener(lastPublishedLocation);
-	        }
-	      });
-
-	      // History 2.x listeners expect a synchronous call. Make the first call to the
-	      // listener after subscribing to the store, in case the listener causes a
-	      // location change (e.g. when it redirects)
-	      if (!history.getCurrentLocation) {
-	        listener(lastPublishedLocation);
-	      }
-
-	      // Let user unsubscribe later
-	      return function () {
-	        unsubscribed = true;
-	        unsubscribeFromStore();
-	      };
-	    },
-
-
-	    // It also provides a way to destroy internal listeners
-	    unsubscribe: function unsubscribe() {
-	      if (adjustUrlOnReplay) {
-	        unsubscribeFromStore();
-	      }
-	      unsubscribeFromHistory();
-	    }
-	  });
-	}
-
-/***/ }),
-/* 260 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports['default'] = routerMiddleware;
-
-	var _actions = __webpack_require__(258);
-
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-	/**
-	 * This middleware captures CALL_HISTORY_METHOD actions to redirect to the
-	 * provided history object. This will prevent these actions from reaching your
-	 * reducer or any middleware that comes after this one.
-	 */
-	function routerMiddleware(history) {
-	  return function () {
-	    return function (next) {
-	      return function (action) {
-	        if (action.type !== _actions.CALL_HISTORY_METHOD) {
-	          return next(action);
-	        }
-
-	        var _action$payload = action.payload,
-	            method = _action$payload.method,
-	            args = _action$payload.args;
-
-	        history[method].apply(history, _toConsumableArray(args));
-	      };
-	    };
-	  };
-	}
-
-/***/ }),
 /* 261 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -27799,9 +27800,9 @@
 	  value: true
 	});
 
-	var _redux = __webpack_require__(228);
+	var _redux = __webpack_require__(233);
 
-	var _reactRouterRedux = __webpack_require__(256);
+	var _reactRouterRedux = __webpack_require__(227);
 
 	var _session = __webpack_require__(262);
 
@@ -27967,9 +27968,6 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.default = undefined;
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(6);
 
@@ -27989,46 +27987,29 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var propTypes = {
+	  routerHistory: _react.PropTypes.object.isRequired,
+	  store: _react.PropTypes.object.isRequired
+	};
 
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	var Root = function Root(_ref) {
+	  var routerHistory = _ref.routerHistory,
+	      store = _ref.store;
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	  (0, _invariant2.default)(routerHistory, '<Root /> needs either a routingContext or routerHistory to render.');
 
-	var Root = function (_React$Component) {
-	  _inherits(Root, _React$Component);
+	  return _react2.default.createElement(
+	    _reactRedux.Provider,
+	    { store: store },
+	    _react2.default.createElement(
+	      _reactRouter.Router,
+	      { history: routerHistory },
+	      (0, _routes2.default)(store)
+	    )
+	  );
+	};
 
-	  function Root() {
-	    _classCallCheck(this, Root);
-
-	    return _possibleConstructorReturn(this, (Root.__proto__ || Object.getPrototypeOf(Root)).apply(this, arguments));
-	  }
-
-	  _createClass(Root, [{
-	    key: '_renderRouter',
-	    value: function _renderRouter() {
-	      (0, _invariant2.default)(this.props.routerHistory, '<Root /> needs either a routingContext or routerHistory to render.');
-
-	      return _react2.default.createElement(
-	        _reactRouter.Router,
-	        { history: this.props.routerHistory },
-	        _routes2.default
-	      );
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        _reactRedux.Provider,
-	        { store: this.props.store },
-	        this._renderRouter()
-	      );
-	    }
-	  }]);
-
-	  return Root;
-	}(_react2.default.Component);
-
+	Root.propTypes = propTypes;
 	exports.default = Root;
 
 /***/ }),
@@ -29106,7 +29087,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _isPlainObject = __webpack_require__(230);
+	var _isPlainObject = __webpack_require__(235);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
@@ -29517,7 +29498,7 @@
 	exports.__esModule = true;
 	exports["default"] = wrapActionCreators;
 
-	var _redux = __webpack_require__(228);
+	var _redux = __webpack_require__(233);
 
 	function wrapActionCreators(actionCreators) {
 	  return function (dispatch) {
@@ -29534,6 +29515,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.default = configRoutes;
 
 	var _reactRouter = __webpack_require__(164);
 
@@ -29553,27 +29535,51 @@
 
 	var _home2 = _interopRequireDefault(_home);
 
-	var _new = __webpack_require__(301);
+	var _new = __webpack_require__(308);
 
 	var _new2 = _interopRequireDefault(_new);
 
-	var _new3 = __webpack_require__(303);
+	var _new3 = __webpack_require__(310);
 
 	var _new4 = _interopRequireDefault(_new3);
 
+	var _sessions = __webpack_require__(285);
+
+	var _sessions2 = _interopRequireDefault(_sessions);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	exports.default = _react2.default.createElement(
-	  _reactRouter.Route,
-	  { component: _main2.default },
-	  _react2.default.createElement(_reactRouter.Route, { path: '/sign_up', component: _new2.default }),
-	  _react2.default.createElement(_reactRouter.Route, { path: '/sign_in', component: _new4.default }),
-	  _react2.default.createElement(
+	function configRoutes(store) {
+	  var _ensureAuthenticated = function _ensureAuthenticated(nextState, replace, callback) {
+	    var dispatch = store.dispatch;
+
+	    var _store$getState = store.getState(),
+	        session = _store$getState.session;
+
+	    var currentUser = session.currentUser;
+
+
+	    if (!currentUser && localStorage.getItem('phoenixAuthToken')) {
+	      dispatch(_sessions2.default.currentUser());
+	    } else if (!localStorage.getItem('phoenixAuthToken')) {
+	      replace('/sign_in');
+	    }
+
+	    callback();
+	  };
+
+	  return _react2.default.createElement(
 	    _reactRouter.Route,
-	    { path: '/', component: _authenticated2.default },
-	    _react2.default.createElement(_reactRouter.IndexRoute, { component: _home2.default })
-	  )
-	);
+	    { component: _main2.default },
+	    _react2.default.createElement(_reactRouter.Route, { path: '/sign_up', component: _new2.default }),
+	    _react2.default.createElement(_reactRouter.Route, { path: '/sign_in', component: _new4.default }),
+	    _react2.default.createElement(
+	      _reactRouter.Route,
+	      { path: '/', component: _authenticated2.default, onEnter: _ensureAuthenticated },
+	      _react2.default.createElement(_reactRouter.IndexRoute, { component: _home2.default })
+	    )
+	  );
+	}
 
 /***/ }),
 /* 282 */
@@ -29864,7 +29870,7 @@
 	});
 	exports.setCurrentUser = setCurrentUser;
 
-	var _reactRouterRedux = __webpack_require__(256);
+	var _reactRouterRedux = __webpack_require__(227);
 
 	var _constants = __webpack_require__(263);
 
@@ -29877,24 +29883,32 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function setCurrentUser(dispatch, user) {
-	  dispatch({
-	    type: _constants2.default.CURRENT_USER,
-	    currentUser: user
-	  });
-
 	  var socket = new _phoenix.Socket('/socket', {
-	    params: { token: localStorage.getItem('phoenixAuthToken') }
+	    params: { token: localStorage.getItem('phoenixAuthToken') },
+	    logger: function logger(kind, msg, data) {
+	      console.log(kind + ': ' + msg, data);
+	    }
 	  });
 
 	  socket.connect();
 
 	  var channel = socket.channel('users:' + user.id);
 
-	  channel.join().receive('ok', function () {
+	  if (channel.state != 'joined') {
+	    channel.join().receive('ok', function () {
+	      dispatch({
+	        type: _constants2.default.CURRENT_USER,
+	        currentUser: user,
+	        socket: socket,
+	        channel: channel
+	      });
+	    });
+	  }
+
+	  channel.on('boards:add', function (msg) {
 	    dispatch({
-	      type: _constants2.default.SOCKET_CONNECTED,
-	      socket: socket,
-	      channel: channel
+	      type: _constants2.default.BOARDS_ADDED,
+	      board: msg.board
 	    });
 	  });
 	};
@@ -31247,10 +31261,11 @@
 
 	exports.checkStatus = checkStatus;
 	exports.parseJSON = parseJSON;
-	exports.renderErrorsFor = renderErrorsFor;
 	exports.httpGet = httpGet;
 	exports.httpPost = httpPost;
+	exports.httpDelete = httpDelete;
 	exports.setDocumentTitle = setDocumentTitle;
+	exports.renderErrorsFor = renderErrorsFor;
 
 	var _react = __webpack_require__(6);
 
@@ -31264,6 +31279,17 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var defaultHeaders = {
+	  Accept: 'application/json',
+	  'Content-Type': 'application/json'
+	};
+
+	function buildHeaders() {
+	  var authToken = localStorage.getItem('phoenixAuthToken');
+
+	  return _extends({}, defaultHeaders, { Authorization: authToken });
+	}
+
 	function checkStatus(response) {
 	  if (response.status >= 200 && response.status < 300) {
 	    return response;
@@ -31276,31 +31302,6 @@
 
 	function parseJSON(response) {
 	  return response.json();
-	}
-
-	function renderErrorsFor(errors, ref) {
-	  if (!errors) return false;
-
-	  return errors.map(function (error, i) {
-	    if (error[ref]) {
-	      return _react2.default.createElement(
-	        'div',
-	        { key: i, className: 'error' },
-	        error[ref]
-	      );
-	    }
-	  });
-	}
-
-	var defaultHeaders = {
-	  Accept: 'application/json',
-	  'Content-Type': 'application/json'
-	};
-
-	function buildHeaders() {
-	  var authToken = localStorage.getItem('phoenixAuthToken');
-
-	  return _extends({}, defaultHeaders, { Authorization: authToken });
 	}
 
 	function httpGet(url) {
@@ -31320,9 +31321,30 @@
 	  }).then(checkStatus).then(parseJSON);
 	}
 
-	// set tab title in browser
+	function httpDelete(url) {
+
+	  return (0, _isomorphicFetch2.default)(url, {
+	    method: 'delete',
+	    headers: buildHeaders()
+	  }).then(checkStatus).then(parseJSON);
+	}
+
 	function setDocumentTitle(title) {
 	  document.title = title + ' | Phoenix Trello';
+	}
+
+	function renderErrorsFor(errors, ref) {
+	  if (!errors) return false;
+
+	  return errors.map(function (error, i) {
+	    if (error[ref]) {
+	      return _react2.default.createElement(
+	        'div',
+	        { key: i, className: 'error' },
+	        error[ref]
+	      );
+	    }
+	  });
 	}
 
 /***/ }),
@@ -33803,6 +33825,20 @@
 
 	var _reactRedux = __webpack_require__(266);
 
+	var _classnames = __webpack_require__(301);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _utils = __webpack_require__(287);
+
+	var _boards = __webpack_require__(302);
+
+	var _boards2 = _interopRequireDefault(_boards);
+
+	var _form = __webpack_require__(303);
+
+	var _form2 = _interopRequireDefault(_form);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -33810,6 +33846,8 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	// import BoardCard            from '../../components/boards/card';
+
 
 	var HomeIndexView = function (_React$Component) {
 	  _inherits(HomeIndexView, _React$Component);
@@ -33821,12 +33859,143 @@
 	  }
 
 	  _createClass(HomeIndexView, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      (0, _utils.setDocumentTitle)('Boards');
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.props.dispatch(_boards2.default.reset());
+	    }
+	  }, {
+	    key: '_renderOwnedBoards',
+	    value: function _renderOwnedBoards() {
+	      var fetching = this.props.fetching;
+
+
+	      var content = false;
+
+	      var iconClasses = (0, _classnames2.default)({
+	        fa: true,
+	        'fa-user': !fetching,
+	        'fa-spinner': fetching,
+	        'fa-spin': fetching
+	      });
+
+	      if (!fetching) {
+	        content = _react2.default.createElement(
+	          'div',
+	          { className: 'boards-wrapper' },
+	          this._renderBoards.call(this, this.props.ownedBoards),
+	          this._renderAddNewBoard.call(this)
+	        );
+	      }
+
+	      return _react2.default.createElement(
+	        'section',
+	        null,
+	        _react2.default.createElement(
+	          'header',
+	          { className: 'view-header' },
+	          _react2.default.createElement(
+	            'h3',
+	            null,
+	            _react2.default.createElement('i', { className: iconClasses }),
+	            ' My boards'
+	          )
+	        ),
+	        content
+	      );
+	    }
+
+	    // _renderBoards(boards) {
+	    //   return boards.map((board) => {
+	    //     return <BoardCard
+	    //               key={board.id}
+	    //               dispatch={this.props.dispatch}
+	    //               {...board} />;
+	    //   });
+	    // }
+
+	  }, {
+	    key: '_renderAddNewBoard',
+	    value: function _renderAddNewBoard() {
+	      var _props = this.props,
+	          showForm = _props.showForm,
+	          dispatch = _props.dispatch,
+	          formErrors = _props.formErrors;
+
+
+	      if (!showForm) return this._renderAddButton();
+
+	      return _react2.default.createElement(_form2.default, {
+	        dispatch: dispatch,
+	        errors: formErrors,
+	        onCancelClick: this._handleCancelClick.bind(this) });
+	    }
+	  }, {
+	    key: '_renderOtherBoards',
+	    value: function _renderOtherBoards() {
+	      var invitedBoards = this.props.invitedBoards;
+
+
+	      if (invitedBoards.length === 0) return false;
+
+	      return _react2.default.createElement(
+	        'section',
+	        null,
+	        _react2.default.createElement(
+	          'header',
+	          { className: 'view-header' },
+	          _react2.default.createElement(
+	            'h3',
+	            null,
+	            _react2.default.createElement('i', { className: 'fa fa-users' }),
+	            ' Other boards'
+	          )
+	        ),
+	        _react2.default.createElement('div', { className: 'boards-wrapper' })
+	      );
+	    }
+	  }, {
+	    key: '_renderAddButton',
+	    value: function _renderAddButton() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'board add-new', onClick: this._handleAddNewClick.bind(this) },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'inner' },
+	          _react2.default.createElement(
+	            'a',
+	            { id: 'add_new_board' },
+	            'Add new board...'
+	          )
+	        )
+	      );
+	    }
+	  }, {
+	    key: '_handleAddNewClick',
+	    value: function _handleAddNewClick() {
+	      var dispatch = this.props.dispatch;
+
+
+	      dispatch(_boards2.default.showForm(true));
+	    }
+	  }, {
+	    key: '_handleCancelClick',
+	    value: function _handleCancelClick() {
+	      this.props.dispatch(_boards2.default.showForm(false));
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        null,
-	        'Home Page'
+	        { className: 'view-container boards index' },
+	        this._renderOwnedBoards.call(this),
+	        this._renderOtherBoards.call(this)
 	      );
 	    }
 	  }]);
@@ -33834,10 +34003,451 @@
 	  return HomeIndexView;
 	}(_react2.default.Component);
 
-	exports.default = HomeIndexView;
+	var mapStateToProps = function mapStateToProps(state) {
+	  return state.boards;
+	};
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps)(HomeIndexView);
 
 /***/ }),
 /* 301 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+	/* global define */
+
+	(function () {
+		'use strict';
+
+		var hasOwn = {}.hasOwnProperty;
+
+		function classNames () {
+			var classes = [];
+
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+
+				var argType = typeof arg;
+
+				if (argType === 'string' || argType === 'number') {
+					classes.push(arg);
+				} else if (Array.isArray(arg)) {
+					classes.push(classNames.apply(null, arg));
+				} else if (argType === 'object') {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				}
+			}
+
+			return classes.join(' ');
+		}
+
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true) {
+			// register as 'classnames', consistent with npm package name
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+	}());
+
+
+/***/ }),
+/* 302 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _constants = __webpack_require__(263);
+
+	var _constants2 = _interopRequireDefault(_constants);
+
+	var _reactRouterRedux = __webpack_require__(227);
+
+	var _utils = __webpack_require__(287);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// import CurrentBoardActions    from './current_board';
+
+	var Actions = {
+	  fetchBoards: function fetchBoards() {
+	    return function (dispatch) {
+	      dispatch({ type: _constants2.default.BOARDS_FETCHING });
+
+	      (0, _utils.httpGet)('/api/v1/boards').then(function (data) {
+	        dispatch({
+	          type: _constants2.default.BOARDS_RECEIVED,
+	          ownedBoards: data.owned_boards,
+	          invitedBoards: data.invited_boards
+	        });
+	      });
+	    };
+	  },
+
+	  showForm: function showForm(show) {
+	    return function (dispatch) {
+	      dispatch({
+	        type: _constants2.default.BOARDS_SHOW_FORM,
+	        show: show
+	      });
+	    };
+	  },
+
+	  create: function create(data) {
+	    return function (dispatch) {
+	      (0, _utils.httpPost)('/api/v1/boards', { board: data }).then(function (data) {
+	        dispatch({
+	          type: _constants2.default.BOARDS_NEW_BOARD_CREATED,
+	          board: data
+	        });
+
+	        dispatch((0, _reactRouterRedux.push)('/boards/' + data.id));
+	      }).catch(function (error) {
+	        error.response.json().then(function (json) {
+	          dispatch({
+	            type: _constants2.default.BOARDS_CREATE_ERROR,
+	            errors: json.errors
+	          });
+	        });
+	      });
+	    };
+	  },
+
+	  reset: function reset() {
+	    return function (dispatch) {
+	      dispatch({
+	        type: _constants2.default.BOARDS_RESET
+	      });
+	    };
+	  }
+	};
+
+	exports.default = Actions;
+
+/***/ }),
+/* 303 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(6);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _boards = __webpack_require__(302);
+
+	var _boards2 = _interopRequireDefault(_boards);
+
+	var _reactPageClick = __webpack_require__(304);
+
+	var _reactPageClick2 = _interopRequireDefault(_reactPageClick);
+
+	var _utils = __webpack_require__(287);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var BoardForm = function (_React$Component) {
+	  _inherits(BoardForm, _React$Component);
+
+	  function BoardForm() {
+	    _classCallCheck(this, BoardForm);
+
+	    return _possibleConstructorReturn(this, (BoardForm.__proto__ || Object.getPrototypeOf(BoardForm)).apply(this, arguments));
+	  }
+
+	  _createClass(BoardForm, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.refs.name.focus();
+	    }
+	  }, {
+	    key: '_handleSubmit',
+	    value: function _handleSubmit(e) {
+	      e.preventDefault();
+
+	      var dispatch = this.props.dispatch;
+	      var name = this.refs.name;
+
+
+	      var data = {
+	        name: name.value
+	      };
+
+	      dispatch(_boards2.default.create(data));
+	    }
+	  }, {
+	    key: '_handleCancelClick',
+	    value: function _handleCancelClick(e) {
+	      e.preventDefault();
+
+	      this.props.onCancelClick();
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var errors = this.props.errors;
+
+
+	      return _react2.default.createElement(
+	        _reactPageClick2.default,
+	        { onClick: this._handleCancelClick.bind(this) },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'board form' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'inner' },
+	            _react2.default.createElement(
+	              'h4',
+	              null,
+	              'New board'
+	            ),
+	            _react2.default.createElement(
+	              'form',
+	              { id: 'new_board_form', onSubmit: this._handleSubmit.bind(this) },
+	              _react2.default.createElement('input', { ref: 'name', id: 'board_name', type: 'text', placeholder: 'Board name', required: 'true' }),
+	              (0, _utils.renderErrorsFor)(errors, 'name'),
+	              _react2.default.createElement(
+	                'button',
+	                { type: 'submit' },
+	                'Create board'
+	              ),
+	              ' or ',
+	              _react2.default.createElement(
+	                'a',
+	                { href: '#', onClick: this._handleCancelClick.bind(this) },
+	                'cancel'
+	              )
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return BoardForm;
+	}(_react2.default.Component);
+
+	exports.default = BoardForm;
+
+/***/ }),
+/* 304 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	// Babel6 does not hack the default behaviour of ES Modules anymore, so we should export
+
+	var PageClick = __webpack_require__(305).default;
+
+	module.exports = PageClick;
+	//# sourceMappingURL=index.js.map
+
+/***/ }),
+/* 305 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(6);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _ReactComponentWithPureRenderMixin = __webpack_require__(306);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var PageClick = _react2.default.createClass({
+	  displayName: 'PageClick',
+
+	  propTypes: {
+	    children: _react2.default.PropTypes.node.isRequired,
+	    onClick: _react2.default.PropTypes.func.isRequired,
+	    onMouseDown: _react2.default.PropTypes.func,
+	    onTouchStart: _react2.default.PropTypes.func,
+	    outsideOnly: _react2.default.PropTypes.bool
+	  },
+
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      outsideOnly: true
+	    };
+	  },
+	  componentWillMount: function componentWillMount() {
+	    this.insideClick = false;
+	  },
+	  componentDidMount: function componentDidMount() {
+	    global.window.addEventListener('touchstart', this.onDocumentClick, false);
+	    global.window.addEventListener('touchend', this.onDocumentMouseUp, false);
+	    global.window.addEventListener('mousedown', this.onDocumentClick, false);
+	    global.window.addEventListener('mouseup', this.onDocumentMouseUp, false);
+	  },
+
+
+	  shouldComponentUpdate: _ReactComponentWithPureRenderMixin.shouldComponentUpdate,
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    global.window.removeEventListener('touchstart', this.onDocumentClick, false);
+	    global.window.removeEventListener('touchend', this.onDocumentMouseUp, false);
+	    global.window.removeEventListener('mousedown', this.onDocumentClick, false);
+	    global.window.removeEventListener('mouseup', this.onDocumentMouseUp, false);
+	  },
+	  onDocumentClick: function onDocumentClick() {
+	    var _props;
+
+	    if (this.insideClick) {
+	      return;
+	    }
+	    (_props = this.props).onClick.apply(_props, arguments);
+	  },
+	  onDocumentMouseUp: function onDocumentMouseUp() {
+	    this.insideClick = false;
+	  },
+	  onMouseDown: function onMouseDown() {
+	    this.insideClick = true;
+	    if (this.props.onMouseDown) {
+	      var _props2;
+
+	      (_props2 = this.props).onMouseDown.apply(_props2, arguments);
+	    }
+	  },
+	  onTouchStart: function onTouchStart() {
+	    this.insideClick = true;
+	    if (this.props.onTouchStart) {
+	      var _props3;
+
+	      (_props3 = this.props).onTouchStart.apply(_props3, arguments);
+	    }
+	  },
+	  render: function render() {
+	    var props = this.props.outsideOnly ? {
+	      onMouseDown: this.onMouseDown,
+	      onTouchStart: this.onTouchStart
+	    } : {};
+
+	    return _react2.default.cloneElement(_react2.default.Children.only(this.props.children), props);
+	  }
+	});
+
+	exports.default = PageClick;
+	//# sourceMappingURL=PageClick.js.map
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ }),
+/* 306 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright 2013-2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * @providesModule ReactComponentWithPureRenderMixin
+	 */
+
+	'use strict';
+
+	var shallowCompare = __webpack_require__(307);
+
+	/**
+	 * If your React component's render function is "pure", e.g. it will render the
+	 * same result given the same props and state, provide this Mixin for a
+	 * considerable performance boost.
+	 *
+	 * Most React components have pure render functions.
+	 *
+	 * Example:
+	 *
+	 *   var ReactComponentWithPureRenderMixin =
+	 *     require('ReactComponentWithPureRenderMixin');
+	 *   React.createClass({
+	 *     mixins: [ReactComponentWithPureRenderMixin],
+	 *
+	 *     render: function() {
+	 *       return <div className={this.props.className}>foo</div>;
+	 *     }
+	 *   });
+	 *
+	 * Note: This only checks shallow equality for props and state. If these contain
+	 * complex data structures this mixin may have false-negatives for deeper
+	 * differences. Only mixin to components which have simple props and state, or
+	 * use `forceUpdate()` when you know deep data structures have changed.
+	 */
+	var ReactComponentWithPureRenderMixin = {
+	  shouldComponentUpdate: function (nextProps, nextState) {
+	    return shallowCompare(this, nextProps, nextState);
+	  }
+	};
+
+	module.exports = ReactComponentWithPureRenderMixin;
+
+/***/ }),
+/* 307 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright 2013-2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	* @providesModule shallowCompare
+	*/
+
+	'use strict';
+
+	var shallowEqual = __webpack_require__(122);
+
+	/**
+	 * Does a shallow comparison for props and state.
+	 * See ReactComponentWithPureRenderMixin
+	 */
+	function shallowCompare(instance, nextProps, nextState) {
+	  return !shallowEqual(instance.props, nextProps) || !shallowEqual(instance.state, nextState);
+	}
+
+	module.exports = shallowCompare;
+
+/***/ }),
+/* 308 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33858,7 +34468,7 @@
 
 	var _utils = __webpack_require__(287);
 
-	var _registrations = __webpack_require__(302);
+	var _registrations = __webpack_require__(309);
 
 	var _registrations2 = _interopRequireDefault(_registrations);
 
@@ -33980,7 +34590,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(RegistrationsNew);
 
 /***/ }),
-/* 302 */
+/* 309 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33989,13 +34599,15 @@
 	  value: true
 	});
 
-	var _reactRouterRedux = __webpack_require__(256);
+	var _reactRouterRedux = __webpack_require__(227);
 
 	var _constants = __webpack_require__(263);
 
 	var _constants2 = _interopRequireDefault(_constants);
 
 	var _utils = __webpack_require__(287);
+
+	var _sessions = __webpack_require__(285);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34006,10 +34618,7 @@
 	    (0, _utils.httpPost)('/api/v1/registrations', { user: data }).then(function (data) {
 	      localStorage.setItem('phoenixAuthToken', data.jwt);
 
-	      dispatch({
-	        type: _constants2.default.CURRENT_USER,
-	        currentUser: data.user
-	      });
+	      (0, _sessions.setCurrentUser)(dispatch, data.user);
 
 	      dispatch((0, _reactRouterRedux.push)('/'));
 	    }).catch(function (error) {
@@ -34026,7 +34635,7 @@
 	exports.default = Actions;
 
 /***/ }),
-/* 303 */
+/* 310 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34116,17 +34725,29 @@
 	          ),
 	          _react2.default.createElement(
 	            'form',
-	            { onSubmit: this._handleSubmit.bind(this) },
+	            { id: 'sign_in_form', onSubmit: this._handleSubmit.bind(this) },
 	            this._renderError.call(this),
 	            _react2.default.createElement(
 	              'div',
 	              { className: 'field' },
-	              _react2.default.createElement('input', { ref: 'email', type: 'Email', placeholder: 'Email', required: 'true', defaultValue: 'john@phoenix-trello.com' })
+	              _react2.default.createElement('input', {
+	                ref: 'email',
+	                type: 'Email',
+	                id: 'user_email',
+	                placeholder: 'Email',
+	                required: 'true',
+	                defaultValue: 'john@phoenix-trello.com' })
 	            ),
 	            _react2.default.createElement(
 	              'div',
 	              { className: 'field' },
-	              _react2.default.createElement('input', { ref: 'password', type: 'password', placeholder: 'Password', required: 'true', defaultValue: '12345678' })
+	              _react2.default.createElement('input', {
+	                ref: 'password',
+	                type: 'password',
+	                id: 'user_password',
+	                placeholder: 'Password',
+	                required: 'true',
+	                defaultValue: '12345678' })
 	            ),
 	            _react2.default.createElement(
 	              'button',

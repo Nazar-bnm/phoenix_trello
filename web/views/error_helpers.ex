@@ -1,8 +1,4 @@
 defmodule PhoenixTrello.ErrorHelpers do
-  @moduledoc """
-  Conveniences for translating and building error messages.
-  """
-
   use Phoenix.HTML
 
   @doc """
@@ -14,9 +10,6 @@ defmodule PhoenixTrello.ErrorHelpers do
     end
   end
 
-  @doc """
-  Translates an error message using gettext.
-  """
   def translate_error({msg, opts}) do
     # Because error messages were defined within Ecto, we must
     # call the Gettext module passing our Gettext backend. We
