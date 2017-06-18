@@ -398,7 +398,7 @@ html {
             margin-bottom: 0; }
 
 body {
-  background: #89609E; }
+  background: #535ebf; }
 
 .tag.green {
   background: #61bd4f; }
@@ -676,7 +676,7 @@ form .error, .form .error {
         animation-name: fadeIn; }
 
 .main-header {
-  background: #745286;
+  background: #4750a2;
   line-height: 2.7em;
   padding: 0 1.5em;
   color: #fff;
@@ -777,9 +777,9 @@ form .error, .form .error {
               font-weight: bold;
               display: block;
               padding: .7em .5em;
-              background: rgba(137, 96, 158, 0.2); }
+              background: rgba(83, 94, 191, 0.2); }
               .main-header nav#boards_nav > ul > li .dropdown ul li a:hover {
-                background: rgba(137, 96, 158, 0.5); }
+                background: rgba(83, 94, 191, 0.5); }
           .main-header nav#boards_nav > ul > li .dropdown ul.options {
             margin-top: 1em; }
             .main-header nav#boards_nav > ul > li .dropdown ul.options li a {
@@ -791,7 +791,7 @@ form .error, .form .error {
                 background: #dee1e3; }
 
 .sessions.new, .registrations.new {
-  background: #89609E;
+  background: #535ebf;
   background-size: cover;
   position: relative;
   height: 100%; }
@@ -833,7 +833,7 @@ form .error, .form .error {
       color: #fff;
       border: 1px solid #fff; }
       .sessions.new form button:hover, .registrations.new form button:hover {
-        color: #89609E;
+        color: #535ebf;
         background: #fff; }
   .sessions.new a, .registrations.new a {
     -webkit-transition: all 0.15s ease-out 0s;
