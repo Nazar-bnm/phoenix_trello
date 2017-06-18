@@ -6,8 +6,8 @@ import HTML5Backend         from 'react-dnd-html5-backend';
 import Actions              from '../../actions/current_board';
 import Constants            from '../../constants';
 import { setDocumentTitle } from '../../utils';
-// import ListForm             from '../../components/lists/form';
-// import ListCard             from '../../components/lists/card';
+import ListForm             from '../../components/lists/form';
+import ListCard             from '../../components/lists/card';
 import BoardMembers           from '../../components/boards/members';
 
 @DragDropContext(HTML5Backend)
@@ -55,6 +55,40 @@ class BoardsShowView extends React.Component {
         connectedUsers={connectedUsers}
         error={error}
         show={showUsersForm} />
+    );
+  }
+
+  _renderLists() {
+    const { lists, channel, editingListId, id, addingNewCardInListId } = this.props.currentBoard;
+
+    return lists.map((list) => {
+      return (
+        <ListCard
+          key={list.id}
+          boardId={id}
+          dispatch={this.props.dispatch}
+          channel={channel}
+          isEditing={editingListId === list.id}
+          onDropCard={::this._handleDropCard}
+          onDropCardWhenEmpty={::this._handleDropCardWhenEmpty}
+          onDrop={::this._handleDropList}
+          isAddingNewCard={addingNewCardInListId === list.id}
+          {...list} />
+      );
+    });
+  }
+
+  _renderAddNewList() {
+    const { dispatch, formErrors, currentBoard } = this.props;
+
+    if (!currentBoard.showForm) return this._renderAddButton();
+
+    return (
+      <ListForm
+        dispatch={dispatch}
+        errors={formErrors}
+        channel={currentBoard.channel}
+        onCancelClick={::this._handleCancelClick} />
     );
   }
 
@@ -169,6 +203,8 @@ class BoardsShowView extends React.Component {
         <div className="canvas-wrapper">
           <div className="canvas">
             <div className="lists-wrapper">
+              {::this._renderLists()}
+              {::this._renderAddNewList()}
             </div>
           </div>
         </div>

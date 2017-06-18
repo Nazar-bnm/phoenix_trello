@@ -4,7 +4,7 @@ defmodule PhoenixTrello.ConnCase do
   tests that require setting up a connection.
 
   Such tests rely on `Phoenix.ConnTest` and also
-  import other functionality to make it easier
+  imports other functionality to make it easier
   to build and query models.
 
   Finally, if the test case interacts with the database,
@@ -21,11 +21,12 @@ defmodule PhoenixTrello.ConnCase do
       use Phoenix.ConnTest
 
       alias PhoenixTrello.Repo
-      import Ecto
-      import Ecto.Changeset
-      import Ecto.Query
+      import Ecto.Model, except: [build: 2]
+      import Ecto.Query, only: [from: 2]
 
       import PhoenixTrello.Router.Helpers
+
+      import PhoenixTrello.Factory
 
       # The default endpoint for testing
       @endpoint PhoenixTrello.Endpoint

@@ -1,10 +1,12 @@
 import React            from 'react';
 import { connect }      from 'react-redux';
+import BoardsActions    from '../actions/boards';
 import Header           from '../layouts/header';
 
 class AuthenticatedContainer extends React.Component {
   componentDidMount() {
     const { dispatch } = this.props;
+    dispatch(BoardsActions.fetchBoards());
   }
 
   render() {

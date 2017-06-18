@@ -4,7 +4,7 @@ import classnames           from 'classnames';
 
 import { setDocumentTitle } from '../../utils';
 import Actions              from '../../actions/boards';
-// import BoardCard            from '../../components/boards/card';
+import BoardCard            from '../../components/boards/card';
 import BoardForm            from '../../components/boards/form';
 
 class HomeIndexView extends React.Component {
@@ -47,14 +47,14 @@ class HomeIndexView extends React.Component {
     );
   }
 
-  // _renderBoards(boards) {
-  //   return boards.map((board) => {
-  //     return <BoardCard
-  //               key={board.id}
-  //               dispatch={this.props.dispatch}
-  //               {...board} />;
-  //   });
-  // }
+  _renderBoards(boards) {
+    return boards.map((board) => {
+      return <BoardCard
+                key={board.id}
+                dispatch={this.props.dispatch}
+                {...board} />;
+    });
+  }
 
   _renderAddNewBoard() {
     let { showForm, dispatch, formErrors } = this.props;
@@ -79,7 +79,9 @@ class HomeIndexView extends React.Component {
         <header className="view-header">
           <h3><i className="fa fa-users" /> Other boards</h3>
         </header>
-        <div className="boards-wrapper"></div>
+        <div className="boards-wrapper">
+          {::this._renderBoards(invitedBoards)}
+        </div>
       </section>
     );
   }

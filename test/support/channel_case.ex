@@ -4,7 +4,7 @@ defmodule PhoenixTrello.ChannelCase do
   channel tests.
 
   Such tests rely on `Phoenix.ChannelTest` and also
-  import other functionality to make it easier
+  imports other functionality to make it easier
   to build and query models.
 
   Finally, if the test case interacts with the database,
@@ -21,9 +21,8 @@ defmodule PhoenixTrello.ChannelCase do
       use Phoenix.ChannelTest
 
       alias PhoenixTrello.Repo
-      import Ecto
-      import Ecto.Changeset
-      import Ecto.Query
+      import Ecto.Model
+      import Ecto.Query, only: [from: 2]
 
 
       # The default endpoint for testing
